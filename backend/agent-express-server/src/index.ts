@@ -2,9 +2,11 @@ import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import { env } from "./config/env";
+import { sessionRouter } from "./routes";
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = env.PORT;
 
 // Middleware
 app.use(helmet()); // Security headers
@@ -14,26 +16,12 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // Routes
-app.get("/", (req: Request, res: Response) => {
-  res.json({
-    message: "Welcome to the Express TypeScript Server!",
-    timestamp: new Date().toISOString(),
-    status: "running",
-  });
-});
+app.use("/sessions", sessionRouter);
 
 app.get("/health", (req: Request, res: Response) => {
   res.json({
     status: "healthy",
     uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-  });
-});
-
-app.get("/api/hello", (req: Request, res: Response) => {
-  const { name = "World" } = req.query;
-  res.json({
-    message: `Hello, ${name}!`,
     timestamp: new Date().toISOString(),
   });
 });
@@ -52,7 +40,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({
     error: "Internal server error",
     message:
-      process.env.NODE_ENV === "development"
+      env.NODE_ENV === "development"
         ? err.message
         : "Something went wrong",
   });
@@ -62,7 +50,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📱 Health check: http://localhost:${PORT}/health`);
-  console.log(`🌐 API endpoint: http://localhost:${PORT}/api/hello`);
 });
 
 export default app;
