@@ -24,23 +24,9 @@ const data = {
   navMain: [
     {
       title: "New Chat",
-      url: "#",
+      url: "/",
       icon: SquarePen,
       isActive: true,
-    },
-  ],
-  sessions: [
-    {
-      name: "Design Engineering",
-      url: "#",
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-    },
-    {
-      name: "Travel",
-      url: "#",
     },
   ],
 };
@@ -60,7 +46,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavSessions sessions={data.sessions} />
+        <NavSessions />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
