@@ -7,7 +7,7 @@ import { AppChatMessages } from "./app-chat-messages";
 import { Dropzone } from "./ui/shadcn-io/dropzone";
 
 export const AppChat = ({ id }: { id?: string }) => {
-  const { setActiveSessionId } = useSession();
+  const { setActiveSessionId, setMessages } = useSession();
 
   const [files, setFiles] = useState<File[] | undefined>();
 
@@ -16,9 +16,10 @@ export const AppChat = ({ id }: { id?: string }) => {
   };
 
   useEffect(() => {
-    if (id) {
-      setActiveSessionId(id);
+    if (!id) {
+      setMessages([]);
     }
+    setActiveSessionId(id || "");
   }, [id]);
 
   return (

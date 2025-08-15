@@ -23,7 +23,7 @@ export function AppChatMessages({ id }: { id: string }) {
       const sessionMessages = messages.filter((m) => m.sessionId === id);
       setMessages([...sessionMessages, ...data.data]);
     }
-  }, [data]);
+  }, [data, id]);
 
   if (isPending || isFetching) {
     return <Skeleton className="h-8" />;
