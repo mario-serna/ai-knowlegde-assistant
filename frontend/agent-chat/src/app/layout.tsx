@@ -1,6 +1,6 @@
+import { Providers } from "@/app/providers";
 import { AppHeader } from "@/components/app-header";
 import { AppSidebar } from "@/components/app-sidebar";
-import { Providers } from "@/components/providers";
 import { SidebarInset } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";

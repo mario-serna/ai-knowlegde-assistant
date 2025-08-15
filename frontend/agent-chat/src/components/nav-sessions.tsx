@@ -19,33 +19,48 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useSession } from "@/context/session-context";
 import { getAllSessions } from "@/lib/api/sessions";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Skeleton } from "./ui/skeleton";
 
 export function NavSessions() {
   const { isMobile } = useSidebar();
+  const { activeSessionId, sessions, setSessions } = useSession();
 
   const { isPending, error, data, isFetching } = useQuery({
     queryKey: ["sessions"],
     queryFn: getAllSessions,
   });
 
+  useEffect(() => {
+    if (data?.data?.sessions) {
+      setSessions(data.data.sessions);
+    }
+  }, [data]);
+
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Sessions</SidebarGroupLabel>
+      <SidebarGroupLabel>Chats</SidebarGroupLabel>
       <SidebarMenu>
         {error && <SidebarMenuItem>Error loading sessions</SidebarMenuItem>}
         {(isPending || isFetching) &&
-          Array.from({ length: 5 }).map((_, index) => (
+          Array.from({ length: 10 }).map((_, index) => (
             <SidebarMenuItem key={index}>
               <Skeleton className="h-8" />
             </SidebarMenuItem>
           ))}
-        {data?.data?.sessions?.map((item) => (
+        {sessions?.map((item) => (
           <SidebarMenuItem key={item.id}>
             <SidebarMenuButton asChild>
-              <Link href={`/c/${item.id}`}>
+              <Link
+                className={cn(
+                  activeSessionId === item.id ? "bg-primary/30" : ""
+                )}
+                href={`/c/${item.id}`}
+              >
                 <span>{item.title}</span>
               </Link>
             </SidebarMenuButton>

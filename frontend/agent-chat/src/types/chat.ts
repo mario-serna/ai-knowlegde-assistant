@@ -14,3 +14,10 @@ export interface ChatMessage {
     createdAt: string;
     metadata: Record<string, unknown>;
 }
+
+export interface ChatMessageResponse {
+    success: boolean;
+    data: {
+        answer: string;
+    }
+}

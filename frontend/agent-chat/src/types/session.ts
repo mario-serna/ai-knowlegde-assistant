@@ -1,3 +1,13 @@
+export interface NewSessionRequest {
+    title: string;
+}
+
+export interface NewSessionResponse {
+    success: boolean;
+    data?: Session;
+    error?: string;
+}
+
 export interface SessionResponse {
     success: boolean;
     data?: SessionData;

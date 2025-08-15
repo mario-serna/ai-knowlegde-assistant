@@ -1,5 +1,7 @@
+import { useSession } from "@/context/session-context";
 import { getSessionChat } from "@/lib/api/sessions";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import {
   AIConversation,
   AIConversationContent,
@@ -9,19 +11,28 @@ import { AIMessage, AIMessageContent } from "./ui/shadcn-io/ai/message";
 import { Skeleton } from "./ui/skeleton";
 
 export function AppChatMessages({ id }: { id: string }) {
-  const { isPending, error, data, isFetching } = useQuery({
+  const { messages, setMessages } = useSession();
+
+  const { isPending, data, isFetching } = useQuery({
     queryKey: ["sessions", id],
     queryFn: () => getSessionChat(id),
   });
+
+  useEffect(() => {
+    if (data?.data) {
+      const sessionMessages = messages.filter((m) => m.sessionId === id);
+      setMessages([...sessionMessages, ...data.data]);
+    }
+  }, [data]);
 
   if (isPending || isFetching) {
     return <Skeleton className="h-8" />;
   }
 
   return (
-    <AIConversation className="flex-1">
-      <AIConversationContent className="p-0">
-        {data?.data?.map(({ id, content, role }) => (
+    <AIConversation className="flex-1 flex justify-center">
+      <AIConversationContent className="justify-self-center w-full max-w-4xl">
+        {messages.map(({ id, content, role }) => (
           <AIMessage from={role} key={id}>
             <AIMessageContent className="rounded-lg">
               {content}
