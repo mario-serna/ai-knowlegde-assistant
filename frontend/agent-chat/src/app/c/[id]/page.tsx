@@ -1,10 +1,12 @@
 import { AppChat } from "@/components/app-chat";
 
-export default async function SessionPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+type params = Promise<{ id: string }>;
+
+interface Props {
+  params: params;
+}
+
+export default async function SessionPage({ params }: Props) {
   const { id } = await params;
 
   return <AppChat id={id} />;
