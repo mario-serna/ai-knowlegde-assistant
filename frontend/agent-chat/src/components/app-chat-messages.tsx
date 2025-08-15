@@ -8,6 +8,7 @@ import {
   AIConversationScrollButton,
 } from "./ui/shadcn-io/ai/conversation";
 import { AIMessage, AIMessageContent } from "./ui/shadcn-io/ai/message";
+import { AIResponse } from "./ui/shadcn-io/ai/response";
 import { Skeleton } from "./ui/skeleton";
 
 export function AppChatMessages({ id }: { id: string }) {
@@ -34,9 +35,13 @@ export function AppChatMessages({ id }: { id: string }) {
       <AIConversationContent className="justify-self-center w-full max-w-4xl">
         {messages.map(({ id, content, role }) => (
           <AIMessage from={role} key={id}>
-            <AIMessageContent className="rounded-lg">
-              {content}
-            </AIMessageContent>
+            {role === "user" ? (
+              <AIMessageContent className="rounded-lg">
+                {content}
+              </AIMessageContent>
+            ) : (
+              <AIResponse className="rounded-lg">{content}</AIResponse>
+            )}
           </AIMessage>
         ))}
       </AIConversationContent>
