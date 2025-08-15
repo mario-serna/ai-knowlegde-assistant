@@ -1,7 +1,6 @@
 "use client";
 import {
   AIInput,
-  AIInputButton,
   AIInputSubmit,
   AIInputTextarea,
 } from "@/components/ui/shadcn-io/ai/input";
@@ -10,18 +9,31 @@ import { sendMessage } from "@/lib/api/chats";
 import { createSession } from "@/lib/api/sessions";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
-import { PlusIcon } from "lucide-react";
+import { FileText, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type FormEventHandler, HTMLAttributes, useRef, useState } from "react";
+import {
+  type FormEventHandler,
+  HTMLAttributes,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { AppChatInputOptions } from "./app-chat-input-options";
+import { Badge } from "./ui/badge";
+import { DropzoneContent } from "./ui/shadcn-io/dropzone";
 
 export type AppChatInputProps = HTMLAttributes<HTMLFormElement> & {
   sessionId?: string;
+  files?: File[];
+  setFiles?: (files: File[]) => void;
 };
 
 export const AppChatInput = ({
   sessionId,
+  files,
+  setFiles,
   className,
   ...props
 }: AppChatInputProps) => {
@@ -35,6 +47,10 @@ export const AppChatInput = ({
   const router = useRouter();
   const { activeSessionId, setActiveSessionId, addSession, addMessage } =
     useSession();
+
+  useEffect(() => {
+    setHasMultiline(!!files?.length || !!text);
+  }, [files]);
 
   const sendMessageMutation = useMutation({
     mutationFn: async () => {
@@ -108,6 +124,11 @@ export const AppChatInput = ({
     const text = event.target.value;
     setText(text);
 
+    if (files?.length) {
+      setHasMultiline(true);
+      return;
+    }
+
     // Reset multiline style
     if (text.length === 0) {
       setHasMultiline(false);
@@ -134,6 +155,35 @@ export const AppChatInput = ({
     >
       <div className="relative flex justify-between items-center gap-1 px-2 py-1">
         <div className="w-full">
+          <DropzoneContent>
+            <div
+              className={cn("flex gap-2 mt-2", files?.length ? "" : "hidden")}
+            >
+              {files?.map((file, index) => (
+                <div
+                  className="relative bg-primary/20 text-secondary-foreground flex items-center gap-2 text-xs border rounded-md p-2 pr-8"
+                  key={index}
+                >
+                  <FileText size={36} />
+                  <div>
+                    <p>{file.name}</p>
+                    <p>{file.type}</p>
+                  </div>
+                  <Badge
+                    variant="destructive"
+                    className="absolute p-1 top-0 right-0 cursor-pointer"
+                    onClick={() => {
+                      const newFiles = [...files];
+                      newFiles.splice(index, 1);
+                      setFiles?.(newFiles);
+                    }}
+                  >
+                    <X size={16} />
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </DropzoneContent>
           <AIInputTextarea
             ref={textareaRef}
             placeholder="Ask anything..."
@@ -145,11 +195,9 @@ export const AppChatInput = ({
           />
           <div className={hasMultiline ? "h-12" : "h-0"} />
         </div>
-        <AIInputButton className="absolute left-2 bottom-[8px] rounded-full">
-          <PlusIcon />
-        </AIInputButton>
+        <AppChatInputOptions className="absolute left-2 bottom-[8px] rounded-full cursor-pointer" />
         <AIInputSubmit
-          className="absolute right-2 bottom-[8px] rounded-full"
+          className="absolute right-2 bottom-[8px] rounded-full cursor-pointer"
           disabled={!text}
           status={status}
         />
