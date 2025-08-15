@@ -25,10 +25,17 @@ export class FileService {
 
   async getFiles(sessionId: string): Promise<FileMetadata[]> {
     const result = await db.query(
-      `SELECT * FROM files WHERE session_id = $1`,
+      `SELECT * FROM uploaded_files WHERE session_id = $1`,
       [sessionId]
     );
-    return result.rows;
+    return result.rows.map((row: any) => ({
+      id: row.id,
+      filename: row.filename,
+      size: +row.file_size,
+      mimeType: row.file_type,
+      sessionId: row.session_id,
+      createdAt: row.created_at,
+    }));
   }
 
   async processFile(
@@ -52,6 +59,8 @@ export class FileService {
       } else if (file.mimetype === "text/plain") {
         textContent = file.buffer.toString("utf-8");
       } else {
+        // Remove file from disk
+        fs.unlinkSync(filePath);
         throw new Error(`Unsupported file type: ${file.mimetype}`);
       }
 

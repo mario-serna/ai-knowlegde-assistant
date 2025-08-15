@@ -16,9 +16,9 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // Routes
-app.use("/sessions", sessionRouter);
+app.use("/api/sessions", sessionRouter);
 
-app.get("/health", (req: Request, res: Response) => {
+app.get("/api/health", (req: Request, res: Response) => {
   res.json({
     status: "healthy",
     uptime: process.uptime(),
@@ -49,7 +49,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📱 Health check: http://localhost:${PORT}/health`);
+  console.log(`📱 Health check: http://localhost:${PORT}/api/health`);
 });
 
 export default app;

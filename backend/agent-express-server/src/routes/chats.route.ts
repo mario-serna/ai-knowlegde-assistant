@@ -5,5 +5,6 @@ import chatController from "../controllers/chat.controller";
 const router = Router({ mergeParams: true });
 
 router.post("/", chatController.addMessage);
+router.get("/", chatController.getChat);
 
 export default router;

@@ -39,6 +39,10 @@ export class LLMService {
 
   buildSystemMessage(): string {
     return `You are AIKA, short for AI Knowledge Assistant — an expert, friendly, and helpful assistant with tools capabilities.
+    Special capabilities:
+    - You can use tools to answer the user's question.
+    - You can retrieve relevant context from the session.
+    - You can process text files uploaded by the user.
 
     Thought:
 
@@ -80,6 +84,7 @@ export class LLMService {
   async generateResponse(messages: (SystemMessage | HumanMessage | AIMessage)[]) {
     try {
       const response = await this.agent.invoke({ messages });
+      console.log("✅ Generated response:", response);
       return response.messages[response.messages.length - 1].content.toString().trim();
     } catch (error) {
       console.error("❌ Failed to generate response:", error);
@@ -121,12 +126,13 @@ export class LLMService {
     // plus a few recent messages, and ask the model to produce a compact summary.
 
     // 1) Take recent messages
-    const recent = await chatService.getMessages(sessionId, "DESC", 2); // last 6 messages
+    const recent = await chatService.getMessages(sessionId, "DESC", 6); // last 6 messages
     if (!recent.length) {
       return "No recent messages found.";
     }
     const recentsText = recent.map((m: any) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n");
 
+    console.log("Recent messages:", recentsText);
     // 2) Take top-K embeddings across session (documents and chat)
     const top = await db.query(
       `SELECT content FROM embeddings WHERE session_id = $1 ORDER BY created_at DESC LIMIT 40`,

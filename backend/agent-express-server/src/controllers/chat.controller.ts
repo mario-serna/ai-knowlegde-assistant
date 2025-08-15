@@ -2,6 +2,24 @@ import { Request, Response } from "express";
 import { chatService } from "../services";
 
 export class ChatController {
+    async getChat(req: Request, res: Response) {
+        try {
+            const { sessionId } = req.params;
+            const chat = await chatService.getMessages(sessionId);
+            return res.status(200).json({
+                success: true,
+                data: chat,
+            });
+        } catch (error) {
+            console.error("❌ Failed to get chat:", error);
+            return res.status(500).json({
+                success: false,
+                error: "Failed to get chat",
+                message: error instanceof Error ? error.message : "Unknown error",
+            });
+        }
+    }
+
     async addMessage(req: Request, res: Response) {
         try {
             const { sessionId } = req.params;
@@ -13,12 +31,12 @@ export class ChatController {
                 });
             }
 
-            const answer = await chatService.processUserMessage(question, sessionId, fileId);
+            const { message } = await chatService.processUserMessage(question, sessionId, fileId);
 
             return res.status(200).json({
                 success: true,
                 data: {
-                    answer,
+                    answer: message,
                 },
             });
         } catch (error) {

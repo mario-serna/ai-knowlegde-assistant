@@ -22,7 +22,7 @@ export class FileController {
                 success: true,
                 message: "File uploaded and processed successfully",
                 data: {
-                    fileId,
+                    id: fileId,
                     filename: req.file.originalname,
                     size: req.file.size,
                     mimeType: req.file.mimetype,
@@ -34,7 +34,7 @@ export class FileController {
 
             if (
                 error instanceof Error &&
-                error.message.includes("Only text and PDF files are allowed")
+                error.message.includes("Unsupported file type")
             ) {
                 return res.status(400).json({
                     success: false,
