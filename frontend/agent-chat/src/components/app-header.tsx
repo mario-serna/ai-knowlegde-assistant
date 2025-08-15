@@ -1,4 +1,5 @@
 import { SquarePen } from "lucide-react";
+import Link from "next/link";
 import { Button } from "./ui/button";
 import { SidebarTrigger } from "./ui/sidebar";
 
@@ -10,10 +11,12 @@ export const AppHeader = () => {
 
         <span className="truncate text-xl">AIKA</span>
 
-        <Button variant="ghost" size="icon">
-          <SquarePen />
-          <span className="sr-only">New Chat</span>
-        </Button>
+        <Link href="/">
+          <Button variant="ghost" size="icon">
+            <SquarePen />
+            <span className="sr-only">New Chat</span>
+          </Button>
+        </Link>
       </div>
     </header>
   );

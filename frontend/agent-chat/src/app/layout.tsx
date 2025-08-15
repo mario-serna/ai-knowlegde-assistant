@@ -36,7 +36,9 @@ export default function RootLayout({
           <SidebarInset>
             <div className="flex flex-col h-screen w-full">
               <AppHeader />
-              <main className="flex flex-1 w-full">{children}</main>
+              <main className="flex w-full h-full max-h-screen overflow-y-auto">
+                {children}
+              </main>
             </div>
           </SidebarInset>
         </Providers>
