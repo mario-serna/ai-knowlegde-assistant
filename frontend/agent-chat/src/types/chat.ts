@@ -8,7 +8,7 @@ export interface ChatResponse {
 export interface ChatMessage {
     id: string;
     sessionId: string;
-    fileId: null;
+    fileId: string | null;
     role: Role;
     content: string;
     createdAt: string;
@@ -20,4 +20,5 @@ export interface ChatMessageResponse {
     data: {
         answer: string;
     }
+    error?: string;
 }

@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/shadcn-io/ai/input";
 import { useSession } from "@/context/session-context";
 import { sendMessage } from "@/lib/api/chats";
+import { uploadFile } from "@/lib/api/files";
 import { createSession } from "@/lib/api/sessions";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -50,31 +51,46 @@ export const AppChatInput = ({
 
   useEffect(() => {
     setHasMultiline(!!files?.length || !!text);
-  }, [files]);
+  }, [files, text]);
 
   const sendMessageMutation = useMutation({
     mutationFn: async () => {
       setStatus("submitted");
       let sid = sessionId;
+      let fileId = "";
 
       if (!sid) {
         const { data, success, error } = await createSession(text.slice(0, 50));
         if (!success || !data) {
-          throw new Error(error || "Failed to create session");
+          const defaultError = "Failed to create session";
+          toast.error(error || defaultError);
+          throw new Error(error || defaultError);
         }
         addSession(data);
         setActiveSessionId(data.id);
         sid = data.id;
-
-        router.push(`/c/${data.id}`);
       }
+
+      if (files?.length) {
+        toast.info("Uploading file...");
+        const { data, success, message } = await uploadFile(files[0], sid);
+        if (!success || !data) {
+          const defaultError = "Failed to upload file";
+          toast.error(message || defaultError);
+        } else {
+          fileId = data.id;
+          toast.success("File uploaded successfully");
+        }
+      }
+
+      router.push(`/c/${sid}`);
 
       addMessage({
         id: uuidv4(),
         content: text,
         role: "user",
         sessionId: sid,
-        fileId: null,
+        fileId,
         createdAt: new Date().toISOString(),
         metadata: {},
       });
@@ -84,6 +100,7 @@ export const AppChatInput = ({
     onSuccess: ({ data }) => {
       setStatus("ready");
       setText("");
+      setFiles?.([]);
       setHasMultiline(false);
 
       addMessage({
@@ -171,8 +188,15 @@ export const AppChatInput = ({
                   </div>
                   <Badge
                     variant="destructive"
-                    className="absolute p-1 top-0 right-0 cursor-pointer"
+                    className={cn(
+                      "absolute p-1 top-0 right-0 cursor-pointer",
+                      status === "submitted" ? "hidden" : ""
+                    )}
                     onClick={() => {
+                      if (status === "submitted") {
+                        return;
+                      }
+
                       const newFiles = [...files];
                       newFiles.splice(index, 1);
                       setFiles?.(newFiles);

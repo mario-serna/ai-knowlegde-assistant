@@ -2,9 +2,17 @@
 import { useSession } from "@/context/session-context";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { Accept } from "react-dropzone";
+import { toast } from "sonner";
 import { AppChatInput } from "./app-chat-input";
 import { AppChatMessages } from "./app-chat-messages";
 import { Dropzone } from "./ui/shadcn-io/dropzone";
+
+// Accepted file types, text files only
+const acceptedFiles: Accept = {
+  "text/*": ["text/plain", "text/csv"],
+  "application/*": ["application/pdf"],
+};
 
 export const AppChat = ({ id }: { id?: string }) => {
   const { setActiveSessionId, setMessages } = useSession();
@@ -15,6 +23,10 @@ export const AppChat = ({ id }: { id?: string }) => {
     setFiles(files);
   };
 
+  const handleDropRejected = () => {
+    toast.warning("Only text, csv and PDF files are allowed");
+  };
+
   useEffect(() => {
     if (!id) {
       setMessages([]);
@@ -23,7 +35,13 @@ export const AppChat = ({ id }: { id?: string }) => {
   }, [id]);
 
   return (
-    <Dropzone noClick={true} onDrop={handleDrop} src={files}>
+    <Dropzone
+      accept={acceptedFiles}
+      noClick={true}
+      onDropRejected={handleDropRejected}
+      onDrop={handleDrop}
+      src={files}
+    >
       <div className="relative flex w-full h-full">
         {id && (
           <div className="flex w-full h-[calc(100%-74px)]">
@@ -41,7 +59,12 @@ export const AppChat = ({ id }: { id?: string }) => {
               <span className="text-2xl">What&apos;s on your mind today?</span>
             </div>
           )}
-          <AppChatInput sessionId={id} files={files} setFiles={setFiles} />
+          <AppChatInput
+            className="bg-secondary"
+            sessionId={id}
+            files={files}
+            setFiles={setFiles}
+          />
         </div>
       </div>
     </Dropzone>
